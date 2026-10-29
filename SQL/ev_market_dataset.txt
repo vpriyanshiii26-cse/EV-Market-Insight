@@ -1,0 +1,66 @@
+CREATE TABLE IF NOT EXISTS ev_market_data (
+    vehicle_id VARCHAR(50) PRIMARY KEY,
+    manufacturer VARCHAR(100),
+    model VARCHAR(100),
+    category VARCHAR(50),
+    production_country VARCHAR(100),
+    sales_region VARCHAR(100),
+    battery_chemistry VARCHAR(50),
+    battery_capacity_kwh NUMERIC(8, 2),
+    acceleration_0_100_sec NUMERIC(6, 2),
+    ac_charging_hours NUMERIC(6, 2),
+    autonomous_level INT,
+    co2_savings_kg NUMERIC(10, 2),
+    resale_retention_pct NUMERIC(6, 2),
+    sales_year INT,
+    sales_volume INT
+);
+
+SELECT 
+    manufacturer,
+    SUM(sales_volume) AS total_sales_units
+FROM ev_market_data
+GROUP BY manufacturer
+ORDER BY total_sales_units DESC;
+
+SELECT 
+    battery_chemistry,
+    COUNT(*) AS total_models,
+    ROUND(AVG(battery_capacity_kwh), 2) AS avg_capacity_kwh,
+    ROUND(SUM(co2_savings_kg), 2) AS total_co2_savings_kg
+FROM ev_market_data
+GROUP BY battery_chemistry
+ORDER BY total_co2_savings_kg DESC;
+
+SELECT 
+    production_country,
+    sales_region,
+    SUM(sales_volume) AS regional_sales_units
+FROM ev_market_data
+GROUP BY production_country, sales_region
+ORDER BY regional_sales_units DESC;
+
+SELECT 
+    category,
+    ROUND(AVG(battery_capacity_kwh), 2) AS avg_battery_capacity,
+    ROUND(AVG(acceleration_0_100_sec), 2) AS avg_acceleration_sec,
+    ROUND(AVG(resale_retention_pct), 2) AS avg_3yr_resale_pct
+FROM ev_market_data
+GROUP BY category
+ORDER BY avg_3yr_resale_pct DESC;
+
+SELECT 
+    autonomous_level,
+    ROUND(AVG(ac_charging_hours), 2) AS avg_ac_charge_hours,
+    COUNT(*) AS total_vehicles
+FROM ev_market_data
+GROUP BY autonomous_level
+ORDER BY autonomous_level ASC;
+
+SELECT 
+    sales_year,
+    category,
+    SUM(sales_volume) AS annual_sales
+FROM ev_market_data
+GROUP BY sales_year, category
+ORDER BY sales_year ASC, annual_sales DESC;
